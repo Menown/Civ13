@@ -40,10 +40,25 @@
 			tally += 0.75
 		if (150 to 192)
 			tally += 0.50
-
+	switch (mood)
+		if (0 to 20)
+			tally += 1
+		if (20 to 40)
+			tally += 0.7
+		if (40 to 60)
+			tally += 0.4
 	if (wear_suit)
-		tally += wear_suit.slowdown
-
+		var/obj/item/clothing/WS = wear_suit
+		tally += WS.slowdown
+		if (WS.accessories.len)
+			for (var/obj/item/clothing/accessory/AC in WS.accessories)
+				tally += AC.slowdown
+	if (w_uniform)
+		var/obj/item/clothing/WU = w_uniform
+		tally += WU.slowdown
+		if (WU.accessories.len)
+			for (var/obj/item/clothing/accessory/AC in WU.accessories)
+				tally += AC.slowdown
 	if (buckled && istype(buckled, /obj/structure/bed/chair/wheelchair))
 		for (var/organ_name in list("l_hand","r_hand","l_arm","r_arm"))
 			var/obj/item/organ/external/E = get_organ(organ_name)

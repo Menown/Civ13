@@ -33,6 +33,10 @@
 		fuel += I.amount
 		qdel(I)
 		return
+	if (istype(I, /obj/item/weapon/reagent_containers/food/snacks/poo))
+		fuel += 0.5
+		qdel(I)
+		return
 	else if (istype(I, /obj/item/weapon/wrench) || (istype(I, /obj/item/weapon/hammer)))
 		if (istype(I, /obj/item/weapon/wrench))
 			visible_message("<span class='warning'>[H] starts to [anchored ? "unsecure" : "secure"] \the [src] [anchored ? "from" : "to"] the ground.</span>")
@@ -72,6 +76,8 @@
 		update_icon()
 		if (name == "campfire")
 			set_light(5)
+		else if (name == "wood stove")
+			set_light(1)
 		else
 			set_light(2)
 		spawn (50)
@@ -134,6 +140,12 @@
 				contents += NO
 				contents -= I
 				qdel(I)
+			else if (istype(I, /obj/item/stack/ore/lead))
+				var/obj/item/stack/material/lead/NO = new/obj/item/stack/material/lead(src)
+				NO.amount = I.amount
+				contents += NO
+				contents -= I
+				qdel(I)
 		else if (istype(I, /obj/item/weapon/reagent_containers/food/snacks/dough))
 			contents += new /obj/item/weapon/reagent_containers/food/snacks/sliceable/bread(src)
 			contents -= I
@@ -188,6 +200,7 @@
 				var/obj/item/weapon/reagent_containers/food/F = I
 				F.roasted = TRUE
 				F.raw = FALSE
+				F.satisfaction = abs(F.satisfaction*2)
 
 	for (var/obj/item/I in contents)
 		I.loc = get_turf(src)
@@ -206,8 +219,34 @@
 	max_space = 5
 	fuel = 4
 
+/obj/structure/oven/fireplace/proc/smoke_signals()
+	for (var/mob/living/carbon/human/HH in range(25,src))
+		if (!HH.blinded && !HH.paralysis && HH.sleeping <= 0 && HH.stat == 0)
+			var/currdir = "somewhere"
+			if (z == HH.z)
+				if (y < HH.y)
+					currdir = "south"
+				if (y > HH.y)
+					currdir = "north"
+				if (y == HH.y)
+					currdir = ""
+				if (x <= HH.x)
+					currdir = "[currdir]west"
+				if (x > HH.x)
+					currdir = "[currdir]east"
+				if (x == HH.x)
+					currdir = ""
+			if (currdir != "somewhere" && currdir != "")
+				HH << "You see some smoke signals [currdir] of you..."
+
+/obj/structure/oven/fireplace/attackby(var/obj/item/I, var/mob/living/carbon/human/H)
+	if (on && (istype(I, /obj/item/stack/material/leather) || istype(I, /obj/item/stack/material/cloth)))
+		H << "You produce some smoke signals."
+		smoke_signals()
+	else
+		..()
 /obj/structure/oven/fireplace/Crossed(mob/living/carbon/M as mob)
-	if (icon_state == "[base_state]_on")
+	if (icon_state == "[base_state]_on" && ishuman(M))
 		M.apply_damage(rand(2,4), BURN, "l_leg")
 		M.apply_damage(rand(2,4), BURN, "r_leg")
 		visible_message("<span class = 'warning'>[M] gets burnt by the [name]!</span>")
@@ -271,6 +310,10 @@
 				fuel += I.amount
 				qdel(I)
 				return
+			else if (istype(I, /obj/item/weapon/reagent_containers/food/snacks/poo))
+				fuel += 0.5
+				qdel(I)
+				return
 			else if (istype(I, /obj/item/stack/ore/coal))
 				fuel += I.amount*3
 				qdel(I)
@@ -303,7 +346,7 @@
 			var/obj/item/weapon/material/MT = I
 			if (MT.get_material_name() == "wood")
 				fuel += 1
-				H << "You break \the [MT] and put it into the [src], using it as fuel."
+				H << "You break \the [MT] and put it into the [src], refueling it."
 				qdel(I)
 			else if (MT.get_material_name() == "bronze")
 				H << "You smelt \the [MT] into bronze ingots."
@@ -325,6 +368,12 @@
 				H << "You smelt \the [MT] into steel sheets."
 				new/obj/item/stack/material/steel(src.loc)
 				qdel(I)
+		else if (istype(I, /obj/item) && I.basematerials.len)
+			H << "You put \the [I] into \the [src] to recycle it."
+			if (I.basematerials[1] == "tin")
+				tin += I.basematerials[2]
+			qdel(I)
+
 		else
 			..()
 	else
@@ -356,7 +405,14 @@
 		newbronze.amount = min(tin,copper)*3
 		tin -= amountconsumed
 		copper -= amountconsumed
-
+	else if (tin == 0 && copper > 0)
+		var/obj/item/stack/material/copper/newcopper = new/obj/item/stack/material/copper(src.loc)
+		newcopper.amount = copper
+		copper = 0
+	else if (tin > 0 && copper == 0)
+		var/obj/item/stack/material/tin/newtin = new/obj/item/stack/material/tin(src.loc)
+		newtin.amount = tin
+		tin = 0
 /obj/structure/furnace/verb/empty()
 	set category = null
 	set name = "Empty"
@@ -373,3 +429,17 @@
 		var/obj/item/stack/ore/tin/emptyedtin = new/obj/item/stack/ore/tin(src.loc)
 		emptyedtin.amount = tin
 		tin = 0
+
+/obj/structure/oven/woodstove
+	name = "wood stove"
+	desc = "A stove fueled with wood logs."
+	icon = 'icons/obj/kitchen.dmi'
+	icon_state = "woodstove"
+	layer = 2.9
+	density = TRUE
+	anchored = TRUE
+	flags = OPENCONTAINER | NOREACT
+	base_state = "woodstove"
+	on = FALSE
+	max_space = 9
+	fuel = 4

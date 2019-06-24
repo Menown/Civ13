@@ -5,7 +5,7 @@
 	item_state = "japboots"
 	worn_state = "japboots"
 	force = WEAPON_FORCE_WEAK
-	armor = list(melee = 15, bullet = 10, laser = 10,energy = 8, bomb = 15, bio = 10, rad = FALSE)
+	armor = list(melee = 15, arrow = 10, gun = FALSE, energy = 8, bomb = 15, bio = 10, rad = 25)
 	item_flags = NOSLIP
 	siemens_coefficient = 0.6
 	cold_protection = FEET
@@ -111,7 +111,7 @@
 	worn_state = "japcoat"
 	body_parts_covered = UPPER_TORSO|LOWER_TORSO|LEGS|ARMS
 	cold_protection = UPPER_TORSO|LOWER_TORSO|LEG_LEFT|LEG_RIGHT|ARM_LEFT|ARM_RIGHT
-	armor = list(melee = 10, bullet = 0, laser = 10,energy = 15, bomb = 5, bio = 30, rad = FALSE)
+	armor = list(melee = 10, arrow = 0, gun = FALSE, energy = 15, bomb = 5, bio = 30, rad = 30)
 	value = 65
 	var/colorn = 1
 
@@ -124,7 +124,7 @@
 	worn_state = "japcoat2"
 	body_parts_covered = UPPER_TORSO|LOWER_TORSO|LEGS|ARMS
 	cold_protection = UPPER_TORSO|LOWER_TORSO|LEG_LEFT|LEG_RIGHT|ARM_LEFT|ARM_RIGHT
-	armor = list(melee = 10, bullet = 0, laser = 10,energy = 15, bomb = 5, bio = 30, rad = FALSE)
+	armor = list(melee = 10, arrow = 0, gun = FALSE, energy = 15, bomb = 5, bio = 30, rad = 30)
 	value = 65
 	var/colorn = 1
 
@@ -136,7 +136,7 @@
 	worn_state = "ruscoat"
 	body_parts_covered = UPPER_TORSO|LOWER_TORSO|LEGS|ARMS
 	cold_protection = UPPER_TORSO|LOWER_TORSO|LEG_LEFT|LEG_RIGHT|ARM_LEFT|ARM_RIGHT
-	armor = list(melee = 10, bullet = 0, laser = 10,energy = 15, bomb = 5, bio = 30, rad = FALSE)
+	armor = list(melee = 10, arrow = 0, gun = FALSE, energy = 15, bomb = 5, bio = 30, rad = 30)
 	value = 65
 	var/colorn = 1
 
@@ -156,7 +156,7 @@
 	worn_state = "rusoffcoat"
 	body_parts_covered = UPPER_TORSO|LOWER_TORSO|LEGS|ARMS
 	cold_protection = UPPER_TORSO|LOWER_TORSO|LEG_LEFT|LEG_RIGHT|ARM_LEFT|ARM_RIGHT
-	armor = list(melee = 10, bullet = 0, laser = 10,energy = 15, bomb = 5, bio = 30, rad = FALSE)
+	armor = list(melee = 10, arrow = 0, gun = FALSE, energy = 15, bomb = 5, bio = 30, rad = 30)
 	value = 65
 	var/colorn = 1
 
@@ -169,9 +169,9 @@
 	icon_state = "japvest"
 	item_state = "japvest"
 	worn_state = "japvest"
-	body_parts_covered = UPPER_TORSO
-	cold_protection = UPPER_TORSO
-	armor = list(melee = 10, bullet = 10, laser = 10,energy = 10, bomb = 10, bio = 10, rad = FALSE)
+	body_parts_covered = UPPER_TORSO|LOWER_TORSO
+	cold_protection = UPPER_TORSO|LOWER_TORSO
+	armor = list(melee = 10, arrow = 10, gun = FALSE, energy = 10, bomb = 10, bio = 10, rad = 15)
 	value = 10
 
 /obj/item/clothing/head/japcap
@@ -297,6 +297,35 @@
 	new /obj/item/ammo_magazine/arisaka(src)
 	new /obj/item/ammo_magazine/arisaka(src)
 	new /obj/item/weapon/attachment/bayonet/military(src)
+
+/obj/item/weapon/storage/belt/jap/ww2soldier
+/obj/item/weapon/storage/belt/jap/ww2soldier/New()
+	..()
+	new /obj/item/ammo_magazine/arisaka99(src)
+	new /obj/item/ammo_magazine/arisaka99(src)
+	new /obj/item/ammo_magazine/arisaka99(src)
+	new /obj/item/ammo_magazine/arisaka99(src)
+	new /obj/item/ammo_magazine/arisaka99(src)
+	new /obj/item/ammo_magazine/arisaka99(src)
+	new /obj/item/weapon/attachment/bayonet/military(src)
+
+/obj/item/weapon/storage/belt/jap/ww2soldier100
+/obj/item/weapon/storage/belt/jap/ww2soldier100/New()
+	..()
+	new /obj/item/ammo_magazine/type100(src)
+	new /obj/item/ammo_magazine/type100(src)
+	new /obj/item/ammo_magazine/type100(src)
+	new /obj/item/ammo_magazine/type100(src)
+	new /obj/item/ammo_magazine/type100(src)
+
+/obj/item/weapon/storage/belt/jap/ww2soldier99
+/obj/item/weapon/storage/belt/jap/ww2soldier99/New()
+	..()
+	new /obj/item/ammo_magazine/type99(src)
+	new /obj/item/ammo_magazine/type99(src)
+	new /obj/item/ammo_magazine/type99(src)
+	new /obj/item/ammo_magazine/type99(src)
+	new /obj/item/ammo_magazine/type99(src)
 
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -443,17 +472,17 @@
 	worn_state = "pickelhaube"
 	body_parts_covered = HEAD
 	flags_inv = BLOCKHEADHAIR
-	armor = list(melee = 50, bullet = 40, laser = 10,energy = 15, bomb = 50, bio = 20, rad = FALSE)
+	armor = list(melee = 50, arrow = 40, gun = 10, energy = 15, bomb = 50, bio = 20, rad = FALSE)
 
 /obj/item/clothing/head/helmet/modern/stahlhelm
-	name = "iron stahlhelm"
-	desc = "A typical pointed helmet."
+	name = "M1935 stahlhelm"
+	desc = "A typical german helmet."
 	icon_state = "stahlhelm"
 	item_state = "stahlhelm"
 	worn_state = "stahlhelm"
 	body_parts_covered = HEAD
 	flags_inv = BLOCKHEADHAIR
-	armor = list(melee = 55, bullet = 45, laser = 10,energy = 15, bomb = 55, bio = 20, rad = FALSE)
+	armor = list(melee = 55, arrow = 45, gun = 15, energy = 15, bomb = 55, bio = 20, rad = FALSE)
 
 /obj/item/clothing/head/helmet/modern/brodie
 	name = "iron brodie"
@@ -463,14 +492,50 @@
 	worn_state = "brodie"
 	body_parts_covered = HEAD
 	flags_inv = BLOCKHEADHAIR
-	armor = list(melee = 45, bullet = 35, laser = 10,energy = 15, bomb = 45, bio = 20, rad = FALSE)
+	armor = list(melee = 45, arrow = 35, gun = 10, energy = 15, bomb = 45, bio = 20, rad = FALSE)
 
 /obj/item/clothing/head/helmet/modern/pith
-	name = "iron pith helmet"
-	desc = "A typical pointed helmet."
+	name = "pith helmet"
+	desc = "A typical tropical helmet."
 	icon_state = "pith"
 	item_state = "pith"
 	worn_state = "pith"
 	body_parts_covered = HEAD
 	flags_inv = BLOCKHEADHAIR
-	armor = list(melee = 50, bullet = 40, laser = 10,energy = 15, bomb = 50, bio = 20, rad = FALSE)
+	armor = list(melee = 50, arrow = 40, gun = 10, energy = 15, bomb = 50, bio = 20, rad = FALSE)
+
+/obj/item/clothing/suit/storage/jacket/doctor
+	name = "white labcoat"
+	desc = "A white labcoat."
+	icon_state = "labcoat"
+	item_state = "labcoat"
+	worn_state = "labcoat"
+
+
+/obj/item/weapon/storage/belt/largepouches
+	name = "large pouches"
+	desc = "A belt with two large pouches, that can fit large items like machinegun belts."
+	icon = 'icons/obj/clothing/belts.dmi'
+	icon_state = "largepouches"
+	item_state = "largepouches"
+	storage_slots = 2
+	max_w_class = 3
+	max_storage_space = 9
+	show_above_suit = TRUE
+/obj/item/weapon/storage/belt/largepouches/green
+	icon_state = "largepouches_green"
+	item_state = "largepouches_green"
+/obj/item/weapon/storage/belt/smallpouches
+	name = "small pouches"
+	desc = "A belt with 4 small pouches, that can fit items like magazines, knives, and other small things."
+	icon = 'icons/obj/clothing/belts.dmi'
+	icon_state = "smallpouches"
+	item_state = "smallpouches"
+	storage_slots = 4
+	max_w_class = 2
+	max_storage_space = 8
+	show_above_suit = TRUE
+
+/obj/item/weapon/storage/belt/smallpouches/green
+	icon_state = "smallpouches_green"
+	item_state = "smallpouches_green"

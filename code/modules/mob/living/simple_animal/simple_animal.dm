@@ -61,13 +61,14 @@
 	var/carnivore = 0 //if it will be attracted to meat and dead bodies. Wont attack living animals by default.
 	var/predatory_carnivore = 0 //same as carnivore but will actively hunt animals/humans if hungry.
 
-	var/simplehunger = 1000
+	var/simplehunger = 2000
 /mob/living/simple_animal/New()
 	..()
 	verbs -= /mob/verb/observe
-	if (map.chad_mode)
-		melee_damage_lower *= 1.5
-		melee_damage_upper *= 1.5
+	if (map)
+		if (map.chad_mode)
+			melee_damage_lower *= 1.5
+			melee_damage_upper *= 1.5
 /mob/living/simple_animal/Login()
 	if (src && client)
 		client.screen = null
@@ -100,13 +101,13 @@
 
 	if (herbivore || carnivore || predatory_carnivore || granivore)
 		simplehunger-=1
-		if (simplehunger > 1000)
-			simplehunger = 1000
+		if (simplehunger > 2000)
+			simplehunger = 2000
 
 		if (simplehunger <= 0)
 			visible_message("\The [src] is starving!")
 			adjustBruteLoss(round(max(1,maxHealth/10)))
-			simplehunger = 30
+			simplehunger = 60
 
 	if (following_mob)
 		stop_automated_movement = TRUE
@@ -206,12 +207,23 @@
 /mob/living/simple_animal/proc/audible_emote(var/act_desc)
 	custom_emote(2, act_desc)
 
-/mob/living/simple_animal/bullet_act(var/obj/item/projectile/Proj)
-	if (!Proj || Proj.nodamage)
-		return
+/mob/living/simple_animal/bullet_act(var/obj/item/projectile/proj)
+	if (proj.firer && ishuman(proj.firer) && proj.firedfrom)
+		var/mob/living/carbon/human/H = proj.firer
+		if (prob(40))
+			switch (proj.firedfrom.gun_type)
+				if (GUN_TYPE_RIFLE)
+					H.adaptStat("rifle", 1)
+				if (GUN_TYPE_PISTOL)
+					H.adaptStat("pistol", 1)
+				if (GUN_TYPE_BOW)
+					H.adaptStat("bows", 1)
 
-	adjustBruteLoss(Proj.damage)
+	adjustBruteLoss(proj.damage)
 	return FALSE
+
+	if (!proj || proj.nodamage)
+		return
 
 /mob/living/simple_animal/attack_hand(mob/living/carbon/human/M as mob)
 	..()
@@ -295,7 +307,7 @@
 			visible_message("<span class='notice'>[user] gently taps [src] with \the [O].</span>")
 		else
 			O.attack(src, user, user.targeted_organ)
-	else if (O.sharp)
+	else if (O.sharp && !istype(src, /mob/living/simple_animal/hostage))
 		if (!istype(O, /obj/item/weapon/reagent_containers) && user.a_intent == I_HURT && stat == DEAD)
 			if (istype(src, /mob/living/simple_animal/frog/poisonous))
 				user.visible_message("<span class = 'notice'>[user] starts to butcher [src].</span>")
@@ -433,7 +445,7 @@
 
 /mob/living/simple_animal/Destroy()
 	unregisterSpawner()
-	. = ..()
+	..()
 
 /mob/living/simple_animal/death(gibbed, deathmessage = "dies!")
 	icon_state = icon_dead
@@ -566,6 +578,10 @@
 				walk_towards(src,0)
 				eat()
 				return
+			for(var/obj/item/weapon/reagent_containers/food/snacks/grown/wheat/WT in range(2,src))
+				walk_towards(src,0)
+				eat()
+				return
 			for(var/turf/floor/grass/GT in range(6,src))
 				walk_towards(src, GT, turns_per_move)
 				return
@@ -574,6 +590,10 @@
 
 	if (granivore)
 		if (prob(100/totalcount))
+			for(var/obj/item/stack/farming/seeds/WT in range(2,src))
+				walk_towards(src,0)
+				eat()
+				return
 			for(var/obj/structure/farming/plant/PL in range(2,src))
 				walk_towards(src,0)
 				eat()
@@ -635,7 +655,7 @@
 				else
 					return
 		for(var/obj/item/weapon/reagent_containers/food/snacks/grown/wheat/WT in range(2,src))
-			if (prob(20))
+			if (prob(30))
 				visible_message("\The [src] eats some of the wheat.")
 				simplehunger += 550
 				adjustBruteLoss(-4)
@@ -644,9 +664,16 @@
 
 
 	if (granivore)
+		for(var/obj/item/stack/farming/seeds/SD in range(2,src))
+			if (prob(35))
+				visible_message("<span class='notice'>\The [src] eats \the [SD]!</span>")
+				simplehunger += 500
+				adjustBruteLoss(-4)
+				qdel(SD)
+				return
 		for(var/obj/structure/farming/plant/PL in range(2,src))
 			if (prob(15))
-				visible_message("<span class='notice'>\The [src] eats the [PL]!</span>")
+				visible_message("<span class='notice'>\The [src] eats \the [PL]!</span>")
 				simplehunger += 400
 				adjustBruteLoss(-4)
 				qdel(PL)

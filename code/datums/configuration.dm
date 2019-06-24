@@ -55,14 +55,14 @@ var/list/gamemode_cache = list()
 	var/list/probabilities = list()		// relative probability of each mode
 	var/allow_random_events = FALSE			// enables random events mid-round when set to TRUE
 	var/guest_jobban = TRUE
-	var/usewhitelist = FALSE
-	var/allow_testing_staff = FALSE
+	var/useapprovedlist = FALSE
 	var/use_job_whitelist =  FALSE
 	var/kick_inactive = FALSE				//force disconnect for inactive players after this many minutes, if non-0
 	var/show_mods = FALSE
 	var/show_mentors = FALSE
 	var/mods_can_tempban = FALSE
 	var/mods_can_job_tempban = FALSE
+	var/disable_fov = FALSE
 	var/mod_tempban_max = 1440
 	var/mod_job_tempban_max = 1440
 	var/ToRban = FALSE
@@ -101,7 +101,7 @@ var/list/gamemode_cache = list()
 	var/organ_health_multiplier = 0.5
 	var/organ_regeneration_multiplier = 0.7
 	var/organs_decay
-	var/default_brain_health = 400
+	var/default_brain_health = 200
 
 	//Paincrit knocks someone down once they hit 60 shock_stage, so by default make it so that close to 100 additional damage needs to be dealt,
 	//so that it's similar to HALLOSS. Lowered it a bit since hitting paincrit takes much longer to wear off than a halloss stun.
@@ -385,18 +385,8 @@ var/list/gamemode_cache = list()
 				if ("disable_respawn")
 					config.abandon_allowed = FALSE
 
-				if ("usewhitelist")
-					if (!value || !list("yes", "Yes", "YES", "no", "No", "NO").Find(value))
-						config.usewhitelist = TRUE
-					else
-						switch (lowertext(value))
-							if ("yes")
-								config.usewhitelist = TRUE
-							if ("no")
-								config.usewhitelist = FALSE
-
-				if ("allow_testing_staff")
-					config.allow_testing_staff = TRUE
+				if ("useapprovedlist")
+					config.useapprovedlist = TRUE
 
 				if ("use_job_whitelist")
 					config.use_job_whitelist = TRUE
@@ -476,7 +466,6 @@ var/list/gamemode_cache = list()
 				if ("character_slots")
 					config.character_slots = text2num(value)
 
-
 				if ("allow_extra_antags")
 					config.allow_extra_antags = TRUE
 
@@ -493,6 +482,9 @@ var/list/gamemode_cache = list()
 
 				if ("round_end_countdown")
 					config.round_end_countdown = text2num(value)
+
+				if ("disable_fov")
+					config.disable_fov = TRUE
 
 				else
 					log_misc("Unknown setting in configuration: '[name]'")

@@ -15,6 +15,7 @@
 	var/raw = FALSE
 	var/decay = 0 //Decay time limit, in deciseconds. 0 means it doesn't decay.
 	var/decaytimer = 0
+	var/satisfaction = 0
 /obj/item/weapon/reagent_containers/food/New()
 	..()
 	if (decay > 0)
@@ -29,8 +30,12 @@
 			return
 		if (isturf(loc)) //if on the floor (i.e. not stored inside something), decay faster
 			decaytimer += 600
-		else
+		else if (!istype(loc, /obj/item/weapon/can)) //if not canned, since canned food doesn't spoil
 			decaytimer += 300
+		if (istype(loc, /obj/item/weapon/can))
+			var/obj/item/weapon/can/C = loc
+			if (C.open)
+				decaytimer += 300
 		if (decaytimer >= decay)
 			qdel(src)
 			return

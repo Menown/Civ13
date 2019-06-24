@@ -8,6 +8,8 @@
 	var/nodrop = FALSE
 	var/list/actions = list() //list of /datum/action's that this item has.
 	var/image/blood_overlay = null //this saves our blood splatter overlay, which will be processed not to go over the edges of the sprite
+	var/image/shit_overlay = null
+	var/image/piss_overlay = null
 	var/abstract = FALSE
 	var/r_speed = 1.0
 	var/health = null
@@ -23,7 +25,6 @@
 	//var/list/origin_tech = null	//Used by R&D to determine what research bonuses it grants.
 	var/list/attack_verb = list() //Used in attackby() to say how something was attacked "[x] has been [z.attack_verb] by [y] with [z]"
 	var/force = FALSE
-
 	var/amount = TRUE
 	var/value = 0 //the cost of an item.
 
@@ -51,7 +52,7 @@
 	var/siemens_coefficient = TRUE // for electrical admittance/conductance (electrocution checks and shit)
 	var/slowdown = FALSE // How much clothing is slowing you down. Negative values speeds you up
 	var/canremove = TRUE //Mostly for Ninja code at this point but basically will not allow the item to be removed if set to 0. /N
-	var/list/armor = list(melee = FALSE, bullet = FALSE, laser = FALSE,energy = FALSE, bomb = FALSE, bio = FALSE, rad = FALSE)
+	var/list/armor = list(melee = FALSE, arrow = FALSE, gun = FALSE, energy = FALSE, bomb = FALSE, bio = FALSE, rad = FALSE)
 	var/obj/item/uplink/hidden/hidden_uplink = null // All items can have an uplink hidden inside, just remember to add the triggers.
 	var/zoomdevicename = null //name used for message when binoculars/scope is used
 
@@ -65,7 +66,6 @@
 	// If icon_override or sprite_sheets are set they will take precendence over this, assuming they apply to the slot in question.
 	// Only slot_l_hand/slot_r_hand are implemented at the moment. Others to be implemented as needed.
 	var/list/item_icons = list()
-	var/requires_two_hands = FALSE
 	var/wielded_icon = null
 	var/worn_state = null
 
@@ -75,6 +75,9 @@
 	var/weight = 0
 	var/heavy = FALSE
 
+	var/list/basematerials = list()
+
+	var/equiptimer = 0 //if it takes some time to equip to a active hand (e.g. guns)
 /obj/item/equipped()
 	..()
 	var/mob/M = loc
@@ -147,31 +150,60 @@
 /obj/item/attack_hand(mob/user as mob)
 	if (isturf(loc) && anchored) return
 	if (!user) return
-	if (hasorgans(user))
-		var/mob/living/carbon/human/H = user
-		var/obj/item/organ/external/temp = H.organs_by_name["r_hand"]
-		if (user.hand)
-			temp = H.organs_by_name["l_hand"]
-		if (temp && !temp.is_usable())
-			user << "<span class='notice'>You try to move your [temp.name], but cannot!</span>"
-			return
-		if (!temp)
-			user << "<span class='notice'>You try to use your hand, but realize it is no longer attached!</span>"
-			return
-	pickup(user)
-	if (istype(loc, /obj/item/weapon/storage))
-		var/obj/item/weapon/storage/S = loc
-		S.remove_from_storage(src)
+	if (do_after(user,equiptimer, src, can_move = TRUE))
+		if (src in range(1,user))
+			if (hasorgans(user))
+				var/mob/living/carbon/human/H = user
+				var/obj/item/organ/external/temp = H.organs_by_name["r_hand"]
+				if (user.hand)
+					temp = H.organs_by_name["l_hand"]
+				if (temp && !temp.is_usable())
+					user << "<span class='notice'>You try to move your [temp.name], but cannot!</span>"
+					return
+				if (!temp)
+					user << "<span class='notice'>You try to use your hand, but realize it is no longer attached!</span>"
+					return
+			pickup(user)
+			if (istype(loc, /obj/item/weapon/storage))
+				var/obj/item/weapon/storage/S = loc
+				S.remove_from_storage(src)
 
-	throwing = FALSE
-	if (loc == user)
-		if (!user.unEquip(src))
-			return
-	else
-		if (isliving(loc))
-			return
-	pickup(user)
-	user.put_in_active_hand(src)
+			throwing = FALSE
+			if (loc == user)
+				if (!user.unEquip(src))
+					return
+			else
+				if (isliving(loc))
+					return
+			user.put_in_active_hand(src)
+			pickup(user)
+		else
+			if (!isturf(src.loc))
+				if (hasorgans(user))
+					var/mob/living/carbon/human/H = user
+					var/obj/item/organ/external/temp = H.organs_by_name["r_hand"]
+					if (user.hand)
+						temp = H.organs_by_name["l_hand"]
+					if (temp && !temp.is_usable())
+						user << "<span class='notice'>You try to move your [temp.name], but cannot!</span>"
+						return
+					if (!temp)
+						user << "<span class='notice'>You try to use your hand, but realize it is no longer attached!</span>"
+						return
+				pickup(user)
+				if (istype(loc, /obj/item/weapon/storage))
+					var/obj/item/weapon/storage/S = loc
+					S.remove_from_storage(src)
+
+				throwing = FALSE
+				if (loc == user)
+					if (!user.unEquip(src))
+						return
+				else
+					if (isliving(loc))
+						return
+				user.put_in_active_hand(src)
+				pickup(user)
 	return
 
 // Due to storage type consolidation this should get used more now.
@@ -434,18 +466,13 @@ var/list/global/slot_flags_enumeration = list(
 	user.attack_log += "\[[time_stamp()]\]<font color='red'> Attacked [M.name] ([M.ckey]) with [name] (INTENT: [uppertext(user.a_intent)])</font>"
 	M.attack_log += "\[[time_stamp()]\]<font color='orange'> Attacked by [user.name] ([user.ckey]) with [name] (INTENT: [uppertext(user.a_intent)])</font>"
 	msg_admin_attack("[user.name] ([user.ckey]) attacked [M.name] ([M.ckey]) with [name] (INTENT: [uppertext(user.a_intent)]) (<A HREF='?_src_=holder;adminplayerobservecoodjump=1;X=[user.x];Y=[user.y];Z=[user.z]'>JMP</a>)") //BS12 EDIT ALG
-	user.setClickCooldown(cooldownw)
+	if (user.tactic == "rush")
+		user.setClickCooldown(cooldownw*0.85)
+	else
+		user.setClickCooldown(cooldownw)
 	user.do_attack_animation(M)
 
 	add_fingerprint(user)
-	//if ((CLUMSY in user.mutations) && prob(50))
-	//	M = user
-		/*
-		M << "<span class='warning'>You stab yourself in the eye.</span>"
-		M.sdisabilities |= BLIND
-		M.weakened += 4
-		M.adjustBruteLoss(10)
-		*/
 
 	if (istype(H))
 
@@ -470,7 +497,7 @@ var/list/global/slot_flags_enumeration = list(
 					M.drop_item()
 				M.eye_blurry += 10
 				M.Paralyse(1)
-				M.Weaken(4)
+				M.Weaken(3)
 			if (eyes.damage >= eyes.min_broken_damage)
 				if (M.stat != 2)
 					M << "<span class='warning'>You go blind!</span>"
@@ -486,10 +513,16 @@ var/list/global/slot_flags_enumeration = list(
 	. = ..()
 	if (blood_overlay)
 		overlays.Remove(blood_overlay)
+	if (shit_overlay)
+		overlays.Remove(shit_overlay)
+		shit_overlay = null
+	if (piss_overlay)
+		overlays.Remove(piss_overlay)
+		piss_overlay = null
 	if (istype(src, /obj/item/clothing/gloves))
 		var/obj/item/clothing/gloves/G = src
 		G.transfer_blood = FALSE
-
+	update_icon()
 /obj/item/reveal_blood()
 	if (was_bloodied/* && !fluorescent*/)
 	//	fluorescent = TRUE
@@ -550,3 +583,19 @@ var/list/global/slot_flags_enumeration = list(
 
 /obj/item/proc/get_weight()
 	return weight
+
+
+//Kicking an item
+/obj/item/kick_act(var/mob/living/user)
+	if(!..())
+		return
+	var/turf/target = get_turf(src.loc)
+	var/range = throw_range
+	var/throw_dir = get_dir(user, src)
+	for(var/i = 1; i < range; i++)
+		var/turf/new_turf = get_step(target, throw_dir)
+		target = new_turf
+		if(new_turf.density)
+			break
+	throw_at(target, rand(1,3), throw_speed)
+	user.visible_message("[user] kicks \the [src.name].")

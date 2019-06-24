@@ -35,10 +35,14 @@ var/list/nonbreaking_types = list(
 	health = 300
 	initial_health = health
 
+	if (istype(src, /obj/structure/simple_door/key_door/anyone/shoji))
+		health = 50
+		initial_health = health
+
 
 	spawn (2)
 		if (unique_door_name && map_door_name == "door")
-			name = "[unique_door_name] Door"
+			name = "[unique_door_name] door"
 		else if (map_door_name != "door")
 			name = "[map_door_name] Door"
 
@@ -82,6 +86,7 @@ var/list/nonbreaking_types = list(
 	else if (istype(W, /obj/item/weapon/storage/belt/keychain))
 		for (var/obj/item/weapon/key/KK in W.contents)
 			if (KK.code == custom_code)
+				locked = !locked
 				if (locked == 1)
 					visible_message("<span class = 'notice'>[user] locks the door.</span>")
 					playsound(get_turf(user), 'sound/effects/door_lock_unlock.ogg', 100)
@@ -91,7 +96,7 @@ var/list/nonbreaking_types = list(
 					playsound(get_turf(user), 'sound/effects/door_lock_unlock.ogg', 100)
 					return
 		if (W.code != custom_code)
-			user << "This key does not match this lock!"
+			user << "None of the keys match this lock!"
 	else
 		if ((W.force > WEAPON_FORCE_WEAK || user.a_intent == I_HURT) && check_can_break_doors(W))
 			if (!user.hitting_key_door)
@@ -127,6 +132,8 @@ var/list/nonbreaking_types = list(
 				visible_message("<span class = 'danger'>[user] hits the door with [W]!</span>")
 				if (istype(material, /material/wood))
 					playsound(get_turf(src), 'sound/effects/wooddoorhit.ogg', 100)
+				if (istype(material, /material/paper))
+					playsound(get_turf(src), 'sound/effects/cardboardpunch.ogg', 100)
 				else
 					playsound(get_turf(src), 'sound/effects/grillehit.ogg', 100)
 				update_damage(-W.force)
@@ -153,14 +160,14 @@ var/list/nonbreaking_types = list(
 
 		if (user.a_intent == I_HELP)
 			user.visible_message("<span class = 'notice'>[user] knocks at the door.</span>")
-			for (var/mob/living/L in view(world.view, src))
-				if (!viewers(world.view, L).Find(user))
+			for (var/mob/living/L in view(7, src))
+				if (!viewers(7, L).Find(user))
 					L << "<span class = 'notice'>You hear a knock at the door.</span>"
 			playsound(get_turf(src), "doorknock", 75, TRUE)
 		else if (user.a_intent == I_DISARM || user.a_intent == I_GRAB)
 			user.visible_message("<span class = 'warning'>[user] bangs on the door.</span>")
-			for (var/mob/living/L in view(world.view, src))
-				if (!viewers(world.view, L).Find(user))
+			for (var/mob/living/L in view(7, src))
+				if (!viewers(7, L).Find(user))
 					L << "<span class = 'notice'>You hear a knock at the door.</span>"
 			playsound(get_turf(src), "doorknock", 100, TRUE)
 		else
@@ -183,20 +190,22 @@ var/list/nonbreaking_types = list(
 
 			if (user.a_intent == I_HELP)
 				user.visible_message("<span class = 'notice'>[user] knocks at the door.</span>")
-				for (var/mob/living/L in view(world.view, src))
-					if (!viewers(world.view, L).Find(user))
+				for (var/mob/living/L in view(7, src))
+					if (!viewers(7, L).Find(user))
 						L << "<span class = 'notice'>You hear a knock at the door.</span>"
 				playsound(get_turf(src), "doorknock", 75, TRUE)
 			else if (user.a_intent == I_DISARM || user.a_intent == I_GRAB)
 				user.visible_message("<span class = 'warning'>[user] bangs on the door.</span>")
-				for (var/mob/living/L in view(world.view, src))
-					if (!viewers(world.view, L).Find(user))
+				for (var/mob/living/L in view(7, src))
+					if (!viewers(7, L).Find(user))
 						L << "<span class = 'notice'>You hear a knock at the door.</span>"
 				playsound(get_turf(src), "doorknock", 100, TRUE)
 			else
 				user.visible_message("<span class = 'danger'>[user] kicks the door!</span>")
 				if (istype(material, /material/wood))
 					playsound(get_turf(src), 'sound/effects/wooddoorhit.ogg', 100)
+				if (istype(material, /material/paper))
+					playsound(get_turf(src), 'sound/effects/cardboardpunch.ogg', 100)
 				else
 					playsound(get_turf(src), 'sound/effects/grillehit.ogg', 100)
 				update_damage(-10)
@@ -220,7 +229,10 @@ var/list/nonbreaking_types = list(
 	health += amt
 	damage_display()
 	if (health <= 0)
-		visible_message("<span class = 'danger'>[src] collapses into a pile of scrap metal!</span>")
+		if (istype(src, /obj/structure/simple_door/key_door/anyone/shoji))
+			visible_message("<span class = 'danger'>The shoji door is torn apart!</span>")
+		else
+			visible_message("<span class = 'danger'>[src] collapses into a pile of scrap metal!</span>")
 		qdel(src)
 
 /obj/structure/simple_door/key_door/proc/damage_display()

@@ -117,6 +117,13 @@
 	item_state = "red_scarf"
 	slot = "decor"
 
+/obj/item/clothing/accessory/armband/yellow_scarf
+	name = "yellow scarf"
+	desc = "A light cotton scarf, in yellow."
+	icon_state = "yellow_scarf"
+	item_state = "yellow_scarf"
+	slot = "decor"
+
 /obj/item/clothing/accessory/armband/suspenders1
 	name = "suspenders"
 	desc = "Leather suspenders."
@@ -258,7 +265,7 @@ obj/item/clothing/under/confederate_uniform/New()
 	item_state = "cowboyboots1"
 	worn_state = "cowboyboots1"
 	force = WEAPON_FORCE_WEAK
-	armor = list(melee = 70, bullet = 40, laser = 50,energy = 25, bomb = 50, bio = 10, rad = FALSE)
+	armor = list(melee = 70, arrow = 40, gun = FALSE, energy = 25, bomb = 50, bio = 10, rad = 25)
 	item_flags = NOSLIP
 	siemens_coefficient = 0.6
 
@@ -269,7 +276,7 @@ obj/item/clothing/under/confederate_uniform/New()
 	item_state = "cowboyboots2"
 	worn_state = "cowboyboots2"
 	force = WEAPON_FORCE_WEAK
-	armor = list(melee = 70, bullet = 40, laser = 50,energy = 25, bomb = 50, bio = 10, rad = FALSE)
+	armor = list(melee = 70, arrow = 40, gun = FALSE, energy = 25, bomb = 50, bio = 10, rad = 25)
 	item_flags = NOSLIP
 	siemens_coefficient = 0.6
 
@@ -282,7 +289,7 @@ obj/item/clothing/under/confederate_uniform/New()
 	worn_state = "kozhanka"
 	body_parts_covered = UPPER_TORSO|LOWER_TORSO|LEGS|ARMS
 	cold_protection = UPPER_TORSO|LOWER_TORSO|LEG_LEFT|LEG_RIGHT|ARM_LEFT|ARM_RIGHT
-	armor = list(melee = 10, bullet = 0, laser = 10,energy = 15, bomb = 5, bio = 30, rad = FALSE)
+	armor = list(melee = 10, arrow = 0, gun = FALSE, energy = 15, bomb = 5, bio = 30, rad = 30)
 	value = 65
 	var/colorn = 1
 	var/specific = FALSE

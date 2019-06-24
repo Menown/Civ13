@@ -8,16 +8,15 @@
 
 /obj/structure/simple_door/key_door/anyone/wood
 	material = "wood"
+	
+/obj/structure/simple_door/key_door/anyone/shoji
+	material = "paper"
+	unique_door_name = "shoji"
+	
+/obj/structure/simple_door/key_door/anyone/rustic
+	material = "log"
+	unique_door_name = "rustic"
 
-/obj/structure/simple_door/key_door/anyone/train
-	material = "morgue"
-
-/obj/structure/simple_door/key_door/anyone/train/New()
-	..()
-	name = "Train Door"
-
-/obj/structure/simple_door/key_door/anyone/cell
-	material = "cell"
 
 #undef ANYONE_CODE
 

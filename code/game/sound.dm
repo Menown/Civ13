@@ -204,8 +204,20 @@ var/list/charge_sounds_ar = list(
 	'sound/effects/emotes/charge_ar5.ogg',
 	'sound/effects/emotes/charge_ar6.ogg',
 	)
+var/list/charge_sounds_ge = list(
+	'sound/effects/emotes/charge_ger.ogg',
+	'sound/effects/emotes/charge_ger2.ogg',
+	'sound/effects/emotes/charge_ger3.ogg',
+	'sound/effects/emotes/charge_ger4.ogg',
+	'sound/effects/emotes/charge_ger5.ogg',
+	)
 var/list/charge_sounds_crusader = list(
 	'sound/effects/emotes/charge_crusader.ogg',)
+var/list/charge_sounds_vi = list(
+	'sound/effects/emotes/charge_vi.ogg',
+	'sound/effects/emotes/charge_vi2.ogg',)
+var/list/charge_sounds_us = list(
+	'sound/effects/emotes/charge_eng.ogg',)
 // pain, etc sounds from Interbay
 
 /proc/playsound(var/atom/source, soundin, vol as num, vary, extrarange as num, falloff, var/is_global, var/list/excluded = list())
@@ -234,7 +246,7 @@ var/list/charge_sounds_crusader = list(
 			continue
 
 		var/distance = get_dist(M, turf_source)
-		if (distance <= ((world.view * 3) + extrarange))
+		if (distance <= ((7 * 3) + extrarange))
 			var/turf/T = get_turf(M)
 			if (T && T.z == turf_source.z)
 				M.playsound_local(turf_source, soundin, vol, vary, frequency, falloff, is_global)
@@ -270,7 +282,7 @@ var/const/FALLOFF_SOUNDS = 0.5
 
 		// multiplicative falloff to add on top of natural audio falloff
 		// this is louder now, because it should be louder than war ambience - Kachnov
-		S.volume -= min(0, (max(distance - world.view, 0) * 1.5))
+		S.volume -= min(0, (max(distance - 7, 0) * 1.5))
 
 		// if you're in a different type of area (fake z levels) the sound will only be half as loud - Kachnov
 		if (S.volume > 0)
@@ -407,8 +419,14 @@ var/const/FALLOFF_SOUNDS = 0.5
 				soundin = pick(charge_sounds_gr)
 			if ("charge_ROMAN")
 				soundin = pick(charge_sounds_ro)
+			if ("charge_GERMAN")
+				soundin = pick(charge_sounds_ge)
 			if ("charge_ARAB")
 				soundin = pick(charge_sounds_ar)
 			if ("charge_CRUSADER")
 				soundin = pick(charge_sounds_crusader)
+			if ("charge_VIETNAMESE")
+				soundin = pick(charge_sounds_vi)
+			if ("charge_AMERICAN")
+				soundin = pick(charge_sounds_us)
 	return soundin

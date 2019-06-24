@@ -33,7 +33,7 @@ Parts of code courtesy of Super3222
 	..()
 	if (A_attached)
 		var/obj/item/weapon/gun/G = loc //loc is the gun this is attached to
-//		var/zoom_offset = round(world.view * zoom_amt)
+//		var/zoom_offset = round(7 * zoom_amt)
 		if (zoomed)
 	/*		if (G.accuracy)
 				G.accuracy = G.scoped_accuracy + zoom_offset*/
@@ -47,6 +47,14 @@ Parts of code courtesy of Super3222
 /obj/item/weapon/attachment/scope/adjustable/binoculars
 	name = "telescope"
 	desc = "A naval telescope."
+	max_zoom = ZOOM_CONSTANT*3
+	attachable = FALSE
+	value = 15
+
+/obj/item/weapon/attachment/scope/adjustable/binoculars/binoculars
+	name = "binoculars"
+	desc = "A pair of binoculars."
+	icon_state = "binoculars"
 	max_zoom = ZOOM_CONSTANT*3
 	attachable = FALSE
 	value = 15
@@ -116,6 +124,12 @@ Parts of code courtesy of Super3222
 	if (user.stat || !ishuman(user))
 		if (!silent) user << "You are unable to focus through \the [src]."
 		return FALSE
+	if (H.wear_mask && istype(H.wear_mask, /obj/item/clothing/mask))
+		var/obj/item/clothing/mask/currmask = H.wear_mask
+		if (currmask.blocks_scope)
+			if (!silent) user << "You can't use the [src] while wearing \the [currmask]!"
+			return FALSE
+		return FALSE
 	else if (global_hud.darkMask[1] in user.client.screen)
 		if (!silent) user << "Your visor gets in the way of looking through \the [src]."
 		return FALSE
@@ -175,17 +189,20 @@ Parts of code courtesy of Super3222
 						_y = -zoom_amt
 					if (WEST)
 						_x = -zoom_amt
-				if (zoom_amt > world.view && user && user.client)//So we can still see the player at the edge of the screen if the zoom amount is greater than the world view
-					var/view_offset = round((zoom_amt - world.view)/2, TRUE)
-					user.client.view += view_offset
+				if (zoom_amt > 7 && user && user.client)//So we can still see the player at the edge of the screen if the zoom amount is greater than the world view
+					var/view_offset = round((zoom_amt - 7)/2, TRUE)
 					switch(user.dir)
 						if (NORTH)
+							user.client.view = "20x[15+view_offset]"
 							_y -= view_offset
 						if (EAST)
+							user.client.view = "[20+view_offset]x15"
 							_x -= view_offset
 						if (SOUTH)
+							user.client.view = "20x[15+view_offset]"
 							_y += view_offset
 						if (WEST)
+							user.client.view = "[20+view_offset]x15"
 							_x += view_offset
 					animate(user.client, pixel_x = world.icon_size*_x, pixel_y = world.icon_size*_y, 4, TRUE)
 					animate(user.client, pixel_x = 0, pixel_y = 0)
@@ -227,13 +244,13 @@ Parts of code courtesy of Super3222
 			for (var/obj/screen/movable/action_button/AB in user.client.screen)
 				if (AB.name == "Toggle Sights" && AB != azoom.button && azoom.button.screen_loc)
 					AB.invisibility = 101
+					if (azoom && azoom.button)
+						var/azoom_button_screenX = text2num(splittext(splittext(azoom.button.screen_loc, ":")[1], "+")[2])
+						var/AB_screenX = text2num(splittext(splittext(AB.screen_loc, ":")[1], "+")[2])
 
-					var/azoom_button_screenX = text2num(splittext(splittext(azoom.button.screen_loc, ":")[1], "+")[2])
-					var/AB_screenX = text2num(splittext(splittext(AB.screen_loc, ":")[1], "+")[2])
-
-					// see if we need to move this button left to compensate
-					if (azoom_button_screenX > AB_screenX)
-						++moved
+						// see if we need to move this button left to compensate
+						if (azoom_button_screenX > AB_screenX)
+							++moved
 		else
 			for (var/obj/screen/movable/action_button/AB in user.client.screen)
 				if (AB.name == "Toggle Sights")
@@ -357,6 +374,8 @@ Parts of code courtesy of Super3222
 		client.view = world.view
 
 /mob/living/carbon/human/proc/using_zoom()
+	if (using_MG)
+		return TRUE
 	if (stat == CONSCIOUS)
 		if (client && actions.len)
 			if (client.pixel_x || client.pixel_y) //Cancel currently scoped weapons

@@ -2,13 +2,18 @@
 	// epoch = required players
 
 	var/list/epochs = list(
-//		"5000 B.C." = 0,
-		"313 B.C." = 0,
-		"1013" = 0,
-		"1713" = 0,
-		"1873" = 0,
-//		"1904" = 0,
-		"Civilization 13" = 0,
+		//"Stone Age (?-3000 B.C.)" = 0,
+		"Bronze Age (500 B.C.-400 A.D.)" = 0,
+		//"Dark Ages (400-700)" = 0,
+		"Middle Ages (700-1450)" = 0,
+		//"Renaissance (1450-1650)" = 0,
+		"Imperial Age (1650-1780)" = 0,
+		"Industrial Age (1850-1895)" = 0,
+		"Early Modern Era (1896-1933)" = 0,
+		"World War II (1934-1957)" = 0,
+		"Cold War Era (1958-1984)" = 0,
+		"Modern Era (1985-2020)" = 0,
+		"Civilization 13 (Nomads)" = 0,
 	)
 	var/ready = TRUE
 	var/admin_triggered = FALSE
@@ -27,14 +32,20 @@
 	if (is_ready())
 		if (config.allowedgamemodes == "TDM")
 			epochs = list(
-				"313 B.C." = 0,
-				"1013" = 0,
-				"1713" = 0,
-				"1873" = 0,
-//				"1904" = 0,
+				//Stone Age (?-3000 B.C.)" = 0,
+				"Bronze Age (500 B.C.-400 A.D.)" = 0,
+				//"Dark Ages (400-700)" = 0,
+				"Middle Ages (700-1450)" = 0,
+				//"Renaissance (1450-1650)" = 0,
+				"Imperial Age (1650-1780)" = 0,
+				"Industrial Age (1850-1895)" = 0,
+				"Early Modern Era (1896-1933)" = 0,
+				"World War II (1934-1957)" = 0,
+				"Cold War Era (1958-1984)" = 0,
+				"Modern Era (1985-2020)" = 0,
 			)
 		else if (config.allowedgamemodes == "RP")
-			epochs = list("Civilization 13" = 0,)
+			epochs = list("Civilization 13 (Nomads)" = 0,)
 		ready = FALSE
 		vote.initiate_vote("epoch", "EpochSwap Process", TRUE, list(src, "swap"))
 
@@ -51,18 +62,19 @@
 			. = TRUE
 	return .
 
-/process/epochswap/proc/swap(var/winner = "1713")
+/process/epochswap/proc/swap(var/winner = "Imperial Age (1650-1780)")
 	vote.voted_epoch = winner
 
 
 /process/mapswap
 	// map = required players
 	var/list/maps = list(MAP_CURSED_ISLAND = 0,)
-	var/epoch = "1713"
+	var/epoch = "Imperial Age (1650-1780)"
 	var/ready = TRUE
 	var/admin_triggered = FALSE
 	var/finished_at = -1
 	var/next_map_title = "TBD"
+	var/done = FALSE
 
 /process/mapswap/setup()
 	name = "mapswap"
@@ -74,23 +86,41 @@
 
 /process/mapswap/fire()
 	// no SCHECK here
+	done = FALSE
 	if (is_ready())
 		ready = FALSE
 		epoch = vote.voted_epoch
+		if (epoch == "Modern Era (1985-2020)")
+	// 2013 - TDM
+			maps = list(
+				MAP_HOSTAGES = 0,
+			)
+		if (epoch == "Cold War Era (1958-1984)")
+	// 1969 - TDM
+			maps = list(
+				MAP_COMPOUND = 0,
+			)
+		if (epoch == "World War II (1934-1957)")
+	// 1943 - TDM
+			maps = list(
+				MAP_REICHSTAG = 0,
+				MAP_KHALKHYN_GOL = 0,
+			)
 
-		if (epoch == "1904")
+		if (epoch == "Early Modern Era (1896-1933)")
 	// 1903 - TDM
 			maps = list(
 				MAP_HILL203 = 0,
+				MAP_YPRES = 0,
 			)
 
-		if (epoch == "1873")
+		if (epoch == "Industrial Age (1850-1895)")
 	// 1873 - TDM
 			maps = list(
 				MAP_LITTLE_CREEK = 10,
 				MAP_LITTLE_CREEK_TDM = 0,
 			)
-		if (epoch == "1713")
+		if (epoch == "Imperial Age (1650-1780)")
 		//1713 - TDM
 			maps = list(
 //				MAP_CURSED_ISLAND = 0,
@@ -108,23 +138,23 @@
 				MAP_HUNT = 0,
 //				MAP_FOUR_COLONIES = 35,
 			)
-		if (epoch == "313 B.C.")
+		if (epoch == "Bronze Age (500 B.C.-400 A.D.)")
 	// 313bc - TDM
 			maps = list(
 				MAP_HERACLEA = 0,
 				MAP_SIEGE = 0,
 			)
-		if (epoch == "1013")
+		if (epoch == "Middle Ages (700-1450)")
 	//	1013 - TDM
 			maps = list(
 				MAP_CAMP = 0,
 				MAP_KARAK = 0,
 			)
-		if (epoch == "5000 B.C.")
+		if (epoch == "Stone Age (?-3000 B.C.)")
 			maps = list(
 				MAP_TRIBES = 0,
 			)
-		if (epoch == "Civilization 13")
+		if (epoch == "Civilization 13 (Nomads)")
 			maps = list(
 //				MAP_CIVILIZATIONS = 0,
 				MAP_NOMADS = 0,
@@ -132,13 +162,13 @@
 				MAP_NOMADS_ICE_AGE = 0,
 				MAP_NOMADS_JUNGLE = 0,
 				MAP_NOMADS_DIVIDE = 0,
-				MAP_NOMADS_CONTINENTAL = 0,
+				MAP_NOMADS_CONTINENTAL = 20,
 				MAP_NOMADS_PANGEA = 0,
 			)
 
 		spawn(10)
 			vote.initiate_vote("map", "MapSwap Process", TRUE, list(src, "swap"))
-
+			return
 
 /process/mapswap/proc/is_ready()
 	. = FALSE
@@ -159,7 +189,9 @@
 	if (!maps.Find(winner))
 		winner = maps[1]
 	// there used to be messages here about success and failure but they lie so they're gone - Kachnov
-	processes.python.execute("mapswap.py", list(winner))
+	if (!done)
+		processes.python.execute("mapswap.py", list(winner))
+		done = TRUE
 
 /process/gamemode
 	var/ready = TRUE
@@ -203,10 +235,12 @@
 	map.gamemode = vote.voted_gamemode
 	if (vote.voted_gamemode == "Classic (Stone Age Start)")
 		world << "<big>Starting <b>Classic</b> mode. Starting epoch is the Stone Age, research active.</big>"
+		map.ordinal_age = 0
 		return
 
 	if (vote.voted_gamemode == "Chad Mode")
 		world << "<font color=#CECE00><big>Starting <b>Chad Mode</b>. Game epoch is the Stone Age, research inactive. Reduced starting items and more hostile conditions.</big></font>"
+		map.ordinal_age = 0
 		map.research_active = FALSE
 		map.chad_mode = TRUE
 		for (var/obj/effect/spawner/mobspawner/MS)
@@ -260,6 +294,7 @@
 		world << "<big>Starting <b>Auto-Research mode</b>. Starting epoch is the Stone Age, research active but automatic.</big>"
 		map.research_active = FALSE //well, it is, but we dont get research kits.
 		map.autoresearch = TRUE
+		map.ordinal_age = 0
 		spawn(100)
 			map.autoresearch_proc()
 		return
@@ -268,6 +303,7 @@
 		world << "<big>Starting <b>Resource-Based Research</b>. Starting epoch is the Stone Age, research active and requires the sale of items through <b>Research Desks</b>.</big>"
 		map.research_active = FALSE //well, it is, but we dont get research kits.
 		map.resourceresearch = TRUE
+		map.ordinal_age = 0
 		return
 
 	else if (vote.voted_gamemode == "Bronze Age Start")

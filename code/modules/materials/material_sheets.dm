@@ -22,7 +22,7 @@
 		default_type = DEFAULT_WALL_MATERIAL
 	material = get_material_by_name("[default_type]")
 
-	recipes = material.get_recipes()
+	recipes = material.get_recipes_civs()
 	stacktype = material.stack_type
 
 
@@ -86,6 +86,12 @@
 /obj/item/stack/material/iron/twentyfive
 	amount = 25
 
+/obj/item/stack/material/barbwire
+	name = "Barbwire"
+	icon_state = "barbwire_stack"
+	default_type = "barbedwire"
+	value = 2
+
 /obj/item/stack/material/bronze
 	name = "bronze"
 	icon_state = "sheet-bronze"
@@ -107,6 +113,13 @@
 	apply_colour = TRUE
 	value = 3
 
+/obj/item/stack/material/lead
+	name = "lead"
+	icon_state = "sheet-lead"
+	default_type = "lead"
+	apply_colour = TRUE
+	value = 3
+
 /obj/item/stack/material/sandstone
 	name = "sandstone brick"
 	icon_state = "sheet-sandstone"
@@ -125,6 +138,12 @@
 	icon_state = "claylump"
 	default_type = "clay"
 	value = 2
+
+/obj/item/stack/material/electronics
+	name = "electronic circuits"
+	icon_state = "sheet-electronics"
+	default_type = "electronic"
+	value = 5
 
 /obj/item/stack/material/marble
 	name = "marble brick"
@@ -244,6 +263,23 @@
 	w_class = 2.0
 	flammable = TRUE
 
+/obj/item/stack/material/wool
+	name = "wool pile"
+	icon_state = "woolpile"
+	default_type = "wool"
+	value = 2
+	w_class = 2.0
+	flammable = TRUE
+
+
+/obj/item/stack/material/woolcloth
+	name = "wool cloth"
+	icon_state = "wool_roll"
+	default_type = "woolcloth"
+	value = 3
+	w_class = 2.0
+	flammable = TRUE
+
 /obj/item/stack/material/leather
 	name = "leather"
 	desc = "The by-product of mob grinding."
@@ -343,7 +379,6 @@
 		if (isturf(loc))
 			qdel(src)
 /obj/item/stack/material/list_recipes(mob/user as mob, recipes_sublist)
-	if (map.civilizations)
-		var/mob/living/carbon/human/U = user
-		recipes = material.get_recipes_civs(U.original_job_title, U)
+	var/mob/living/carbon/human/U = user
+	recipes = material.get_recipes_civs(U.original_job_title, U)
 	..()
